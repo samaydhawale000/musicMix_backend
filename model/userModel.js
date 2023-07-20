@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema({
     admin:Boolean,
     likedSongs: { type: [String], default: [] },
 	playlists: { type: [String], default: [] },
+
 })
 
 const userModel = mongoose.model("user", userSchema)

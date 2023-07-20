@@ -10,7 +10,7 @@ userRoute.post("/register", registerMiddle, async (req, res) => {
   try {
     let findUser = await userModel.findOne({ email });
 
-    if (findUser.email) {
+    if (findUser) {
       res.json({ msg: "User has already registered please login" });
     }
 

@@ -1,6 +1,9 @@
 const SongModel = require("../model/songModel");
-
 const songRouter = require("express").Router();
+const admin = require("../middlewares/admin.middleware");
+const auth = require("../middlewares/auth.middleware")
+const validateObjectId = require("../middlewares/validateObjectId");
+const UserModel = require("../model/userModel");
 
 
 ///create song
@@ -27,7 +30,7 @@ songRouter.get("/", async (req, res) => {
 
 //update songs
 
-songRouter.put("/:id", admin, async (req, res) => {
+songRouter.put("/:id", [validateObjectId, admin], async (req, res) => {
     try {
         const song = await SongModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
@@ -39,7 +42,7 @@ songRouter.put("/:id", admin, async (req, res) => {
 
 //delete song by ID
 
-songRouter.delete("/:id", admin, async (req, res) => {
+songRouter.delete("/:id", [validateObjectId, admin], async (req, res) => {
     try {
         await SongModel.findByIdAndDelete(req.params.id);
         res.status(200).send("Song deleted succsessfully")
@@ -48,5 +51,41 @@ songRouter.delete("/:id", admin, async (req, res) => {
     }
 })
 
+
+//like song
+songRouter.put("/like/:id", [validateObjectId, auth], async (req, res) => {
+    const { user } = req;
+    try {
+        let resMessage = "";
+        const song = await SongModel.findById(req.params.id);
+        if (!song) return res.status(400).send({ message: "Song does not exist" })
+
+        const likedUser = await UserModel.findById(user._id);
+
+        const index = likedUser.likedSongs.indexOf(song._id);
+
+        if (index === -1) {
+            likedUser.likedSongs.push(song._id);
+            resMessage = "Added to your liked songs";
+        } else {
+            likedUser.likedSongs.splice(index, 1);
+            resMessage = "Removed from your liked songs";
+        }
+
+
+        await likedUser.save();
+        res.status(200).send({ message: resMessage })
+    } catch (error) {
+        res.status(500).send({ message: error.message })
+    }
+})
+
+
+// Get liked songs
+songRouter.get("/like", auth, async (req, res) => {
+    const user = await UserModel.findById(req.user._id);
+    const songs = await SongModel.find({ _id: user.likedSongs });
+    res.status(200).send({ data: songs });
+});
 
 module.exports = songRouter

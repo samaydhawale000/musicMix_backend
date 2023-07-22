@@ -4,10 +4,35 @@ const admin = require("../middlewares/admin.middleware");
 const auth = require("../middlewares/auth.middleware")
 const validateObjectId = require("../middlewares/validateObjectId");
 const UserModel = require("../model/userModel");
+// const multer = require("multer");
 
+
+// const imageStorage = multer.diskStorage({
+//     destination: (req, res, cb) => {
+//         cb(null, "./uploads/images")
+//     },
+
+//     filename: (req, file, cb) => {
+//         // Set the filename to be used when saving the image
+//         cb(null, `${Date.now()}-${file.originalname}`);
+//     }
+// })
+// const audioStorage = multer.diskStorage({
+//     destination: (req, res, cb) => {
+//         cb(null, "./uploads/audios")
+//     },
+
+//     filename: (req, file, cb) => {
+//         // Set the filename to be used when saving the image
+//         cb(null, `${Date.now()}-${file.originalname}`);
+//     }
+// })
+
+// const uploadImage = multer({ storage: imageStorage });
+// const uploadAudio = multer({ storage: audioStorage });
 
 ///create song
-songRouter.post("/", admin, async (req, res) => {
+songRouter.post("/upload", admin, async (req, res) => {
     try {
         const song = await SongModel(req.body).save();
         res.status(200).send({ data: song, msg: "Song created successfully" })
@@ -71,8 +96,6 @@ songRouter.put("/like/:id", [validateObjectId, auth], async (req, res) => {
             likedUser.likedSongs.splice(index, 1);
             resMessage = "Removed from your liked songs";
         }
-
-
         await likedUser.save();
         res.status(200).send({ message: resMessage })
     } catch (error) {

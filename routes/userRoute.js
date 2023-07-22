@@ -3,7 +3,8 @@ const UserModel = require("../model/userModel");
 const bcrypt = require("bcrypt");
 const admin = require("../middlewares/admin.middleware");
 const auth = require("../middlewares/auth.middleware");
-const validateObjectId = require("../middlewares/validateObjectId")
+const validateObjectId = require("../middlewares/validateObjectId");
+const BlacklistModel = require("../model/blacklistModel");
 require("dotenv").config();
 
 
@@ -54,6 +55,17 @@ router.post("/login", async (req, res) => {
   }
 })
 
+router.post("/logout", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (token) {
+      await BlacklistModel.updateMany({ $push: { blacklist: [token] } });
+      res.status(200).send({ msg: "Logout sucsessfull" })
+    }
+  } catch (error) {
+    res.status(400).send({ error: error.message })
+  }
+})
 
 
 //get all users
@@ -65,6 +77,7 @@ router.get("/", admin, async (req, res) => {
     res.status(400).send({ message: error })
   }
 })
+
 
 
 // get user by id

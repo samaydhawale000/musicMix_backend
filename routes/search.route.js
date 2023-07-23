@@ -2,7 +2,7 @@ const router = require("express").Router();
 const SongModel = require("../model/songModel");
 const playlist = require("../model/playlistModel");
 
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
     const search = req.query.search;
     console.log(search)
     try {

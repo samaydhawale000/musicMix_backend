@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const SongModel = require("../model/songModel");
 const playlist = require("../model/playlistModel");
-const auth = require("../middlewares/auth.middleware");
 
 router.get("/", auth, async (req, res) => {
     const search = req.query.search;
